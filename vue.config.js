@@ -1,4 +1,4 @@
-// const registerRouter = require('./backend/router')
+const registerRouter = require('./backend/router')
 
 module.exports = {
   css: {
@@ -10,6 +10,12 @@ module.exports = {
           @import "@/assets/scss/mixin.scss";
         `
       }
+    }
+  },
+  // 代理设置
+  devServer: {
+    before(app) {
+      registerRouter(app)
     }
   }
 }
