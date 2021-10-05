@@ -1,32 +1,59 @@
 <template>
   <div class="recommend">
-    <!-- slide容器 -->
-    <div class="slider-wrapper">
-      <!-- slide滚动元素 -->
-      <div class="slider-content">
-        <!-- 至少需要一个轮播图 -->
-        <Slider v-if="sliders.length > 0" :sliders="sliders" />
+    <Scroll class="recommend-content">
+      <div>
+        <!-- slide容器 -->
+        <div class="slider-wrapper">
+          <!-- slide滚动元素 -->
+          <div class="slider-content">
+            <!-- 至少需要一个轮播图 -->
+            <Slider v-if="sliders.length > 0" :sliders="sliders" />
+          </div>
+        </div>
+        <!-- 列表 -->
+        <div class="recommend-list">
+          <h1 class="list-title">热门歌单推荐</h1>
+          <ul>
+            <li
+              v-for="item in albums"
+              :key="item.id"
+              class="item"
+            >
+              <div class="icon">
+                <img width="60" height="60" :src="item.pic">
+              </div>
+              <div class="text">
+                <h2 class="name">{{item.username}}</h2>
+                <p class="title">{{item.title}}</p>
+              </div>
+            </li>
+          </ul>
+        </div>
       </div>
-    </div>
+    </Scroll>
   </div>
 </template>
 <script>
 import { getRecommend } from '@/service/recommend'
 import Slider from '@/components/base/slider/slider.vue'
+import Scroll from '@/components/base/scroll/scroll.vue'
 export default {
   name: 'recommend',
   components: {
-    Slider
+    Slider,
+    Scroll
   },
   data() {
     return {
-      sliders: []
+      sliders: [], // 轮播图数据
+      albums: []
     }
   },
   async created() {
     // 获取轮播图数据
     const result = await getRecommend()
     this.sliders = result.sliders
+    this.albums = result.albums
   }
 }
 </script>
@@ -36,18 +63,58 @@ export default {
   width: 100%;
   top: 88px;
   bottom: 0;
-  .slider-wrapper {
-    position: relative;
-    width: 100%;
-    height: 0;
-    padding-top: 40%;
+  .recommend-content {
+    height: 100%;
     overflow: hidden;
-    .slider-content {
-      position: absolute;
-      left: 0;
-      top: 0;
+    .slider-wrapper {
+      position: relative;
       width: 100%;
-      height: 100%;
+      height: 0;
+      padding-top: 40%;
+      overflow: hidden;
+      .slider-content {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+      }
+    }
+    .recommend-list {
+      .list-title {
+        height: 65px;
+        line-height: 65px;
+        text-align: center;
+        font-size: $font-size-medium;
+        color: $color-theme;
+      }
+      .item {
+        display: flex;
+        box-sizing: border-box;
+        align-items: center;
+        padding: 0 20px 20px 20px;
+        .icon {
+          flex: 0 0 60px;
+          width: 60px;
+          padding-right: 20px;
+        }
+        .text {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          flex: 1;
+          line-height: 20px;
+          overflow: hidden;
+          font-size: $font-size-medium;
+        }
+        .name {
+          margin-bottom: 10px;
+          color: $color-text;
+        }
+        .title {
+          color: $color-text-d;
+        }
+      }
     }
   }
 }
