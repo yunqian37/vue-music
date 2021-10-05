@@ -7,7 +7,10 @@
  */
 import { createApp } from 'vue'
 import Loading from './loading.vue'
+import { addClass, removeClass } from '@/assets/js/dom.js'
 
+// g-relative在scss/base.scss中已经定义
+const relativeCls = 'g-relative'
 /**
  * 自定义指令的钩子函数：
  *  created：在绑定元素的attribute(属性)或事件监听器被应用之前调用，在指令需要附加在普通的v-on事件监听器前调用的事件监听时很有用
@@ -40,11 +43,17 @@ const loadingDirective = {
   mounted(el, binding) {
     // 检索Loading组件，始终返回构造函数
     const app = createApp(Loading)
-    console.log('app', app)
     // createApp接收根组件对象作为参数，并返回了一个有mount方法的应用实例对象
     // 创建一个div盒子 createApp链式调用mount
     const instance = app.mount(document.createElement('div'))
+    // 挂载动态创建的实例到el上
     el.instance = instance
+    // 动态参数
+    const title = binding.arg
+    if (typeof title !== 'undefined') {
+      // 实例中有setTitle 可以自定义title
+      instance.setTitle(title)
+    }
     // 如果指令绑定的值为true调用append
     if (binding.value) {
       append(el)
@@ -53,6 +62,12 @@ const loadingDirective = {
 
   // 在包含组件的VNode及其子组件的VNode更新后调用
   updated(el, binding) {
+    // 动态参数
+    const title = binding.arg
+    if (typeof title !== 'undefined') {
+      // 实例中有setTitle 可以自定义title
+      el.instance.setTitle(title)
+    }
     // 指令现在的值 !== 指令之前的值
     if (binding.value !== binding.oldValue) {
       // 判断指令当前是否有值
@@ -62,11 +77,19 @@ const loadingDirective = {
 }
 
 function append(el) {
+  // 获取el的样式属性
+  const style = getComputedStyle(el)
+  // 判断el的样式中是否有该定位，没有则进行样式的添加
+  if (['absolute', 'fixed', 'relative'].indexOf(style.position) === -1) {
+    // addClass：向被选元素添加一个或多个类
+    addClass(el, relativeCls)
+  }
   // appendChild：向节点添加最后一个字节点
   el.appendChild(el.instance.$el)
 }
 
 function remove(el) {
+  removeClass(el, relativeCls)
   // removeChild：从子节点列表中删除某个节点，删除成功返回被删除的节点 失败则返回null
   el.removeChild(el.instance.$el)
 }

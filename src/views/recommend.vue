@@ -1,5 +1,5 @@
 <template>
-  <div class="recommend" v-loading="loading">
+  <div class="recommend" v-loading:[loadingText]="loading">
     <Scroll class="recommend-content">
       <div>
         <!-- slide容器 -->
@@ -47,7 +47,8 @@ export default {
   data() {
     return {
       sliders: [], // 轮播图数据
-      albums: []
+      albums: [],
+      loadingText: 'ing...' // 自定义指令的动态参数
     }
   },
   computed: {
@@ -65,7 +66,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 .recommend {
-  position: fixed;
+  // position: fixed;
   width: 100%;
   top: 88px;
   bottom: 0;
