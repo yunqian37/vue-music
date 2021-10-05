@@ -20,7 +20,8 @@
               class="item"
             >
               <div class="icon">
-                <img width="60" height="60" :src="item.pic">
+                <!-- v-lazy：懒加载图片指令 -->
+                <img width="60" height="60" v-lazy="item.pic">
               </div>
               <div class="text">
                 <h2 class="name">{{item.username}}</h2>
