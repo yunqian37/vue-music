@@ -1,6 +1,9 @@
 <template>
-  <scroll class="index-list">
-    <ul>
+  <scroll
+    class="index-list"
+    :probe-type="3"
+    @scroll="onScroll" >
+    <ul ref="groupRef">
       <li
         v-for="group in data"
         :key="group.title"
@@ -17,10 +20,17 @@
         </ul>
       </li>
     </ul>
+    <div
+      class="fixed"
+      v-show="fixedTitle"
+      :style="fixedStyle">
+      <div class="fixed-title">{{fixedTitle}}</div>
+    </div>
   </scroll>
 </template>
 <script>
 import scroll from '@/components/base/scroll/scroll'
+import useFixed from './use-fixed'
 export default {
   name: 'index-list',
   components: {
@@ -32,6 +42,16 @@ export default {
       default() {
         return []
       }
+    }
+  },
+  setup(props) {
+    const { groupRef, onScroll, fixedTitle, fixedStyle } = useFixed(props)
+
+    return {
+      groupRef,
+      onScroll,
+      fixedTitle,
+      fixedStyle
     }
   }
 }
@@ -67,6 +87,21 @@ export default {
         color: $color-text-l;
         font-size: $font-size-medium;
       }
+    }
+  }
+  // 固定层
+  .fixed {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    .fixed-title {
+      height: 30px;
+      line-height: 30px;
+      padding-left: 20px;
+      font-size: $font-size-small;
+      color: $color-text-l;
+      background: $color-highlight-background;
     }
   }
 }
