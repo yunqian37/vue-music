@@ -36,7 +36,7 @@ export default function useSlider(wrapperRef) {
   })
   // onUnmounted 对标 unmounted
   onUnmounted(() => {
-    slider.value.destory()
+    slider.value.destroy()
   })
   // 返回当前页坐标 && 轮播图信息
   return {
