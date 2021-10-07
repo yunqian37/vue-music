@@ -31,10 +31,11 @@ export default {
   setup(props, { emit }) {
     const rootRef = ref(null)
     // 将props数据传递给use-scroll中的函数
-    useScroll(rootRef, props, emit)
+    const scroll = useScroll(rootRef, props, emit)
 
     return {
-      rootRef
+      rootRef,
+      scroll
     }
   }
 }
