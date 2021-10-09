@@ -14,6 +14,7 @@
           <li
             v-for="item in group.list"
             :key="item.id"
+            @click="onItemClick(item)"
             class="item">
             <img class="avatar" v-lazy="item.pic" />
             <span class="name">{{item.name}}</span>
@@ -63,7 +64,8 @@ export default {
       }
     }
   },
-  setup(props) {
+  emits: ['select'],
+  setup(props, { emit }) {
     const {
       groupRef,
       onScroll,
@@ -78,7 +80,14 @@ export default {
       onShortcutTouchMove,
       onShortcutTouchEnd
     } = useShortcut(props, groupRef)
+
+    // 传递数据给详情
+    function onItemClick(item) {
+      emit('select', item)
+    }
+
     return {
+      onItemClick,
       groupRef,
       onScroll,
       fixedTitle,
