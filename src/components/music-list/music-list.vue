@@ -10,7 +10,10 @@
       class="bg-image"
       :style="bgImageStyle"
       ref="bgImage">
-      <div class="filter"></div>
+      <!-- 动态设置模糊层 -->
+      <div
+        class="filter"
+        :style="filterStyle"></div>
     </div>
     <!-- probe-type用法参考滚动组件文档 -->
     <scroll
@@ -89,6 +92,19 @@ export default {
     scrollStyle() {
       return {
         top: `${this.imageHeight}px`
+      }
+    },
+    filterStyle() {
+      let blur = 0
+      const scrollY = this.scrollY
+      const imageHeight = this.imageHeight
+      // 页面向上推的一个过程
+      if (screenY >= 0) {
+        // 设置blur的最大值
+        blur = Math.min(this.maxTranslateY / imageHeight, scrollY / imageHeight) * 20
+      }
+      return {
+        backdropFilter: `blur(${blur}px)`
       }
     }
   },
