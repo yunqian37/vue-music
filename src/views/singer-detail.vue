@@ -3,7 +3,8 @@
     <MusicList
       :songs="songs"
       :pic="pic"
-      :title="title" />
+      :title="title"
+      :loading="loading" />
   </div>
 </template>
 <script>
@@ -20,7 +21,8 @@ export default {
   },
   data() {
     return {
-      songs: []
+      songs: [],
+      loading: true // music-list组件所需的loading参数
     }
   },
   computed: {
@@ -37,6 +39,7 @@ export default {
     const songs = await processSongs(result.songs)
     this.songs = songs
     console.log('songs', songs)
+    this.loading = false
   }
 }
 </script>

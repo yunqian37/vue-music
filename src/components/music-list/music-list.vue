@@ -1,13 +1,21 @@
 <template>
   <div class="music-list">
-    <div class="back">
+    <div
+      class="back"
+      @click="goBack">
       <i class="icon-back"></i>
     </div>
     <h1 class="title">{{title}}</h1>
-    <div class="bg-image" :style="bgImageStyle">
+    <div
+      class="bg-image"
+      :style="bgImageStyle"
+      ref="bgImage">
       <div class="filter"></div>
     </div>
-    <scroll class="list">
+    <scroll
+      class="list"
+      :style="scrollStyle"
+      v-loading="loading">
       <div class="song-list-wrapper">
         <SongList :songs="songs" />
       </div>
@@ -31,13 +39,37 @@ export default {
       }
     },
     title: String,
-    pic: String
+    pic: String,
+    loading: Boolean
+  },
+  data() {
+    return {
+      imageHeight: 0
+    }
   },
   computed: {
     bgImageStyle() {
+      const paddingTop = '70%'
       return {
+        paddingTop,
         backgroundImage: `url(${this.pic})`
       }
+    },
+    scrollStyle() {
+      return {
+        top: `${this.imageHeight}px`
+      }
+    }
+  },
+  mounted() {
+    console.log('this.pic', this.pic)
+    console.log('this.$refs.bgImage', this.$refs.bgImage)
+    // 获取背景高度，动态设置list的top值
+    this.imageHeight = this.$refs.bgImage.clientHeight
+  },
+  methods: {
+    goBack() {
+      this.$router.back()
     }
   }
 }
