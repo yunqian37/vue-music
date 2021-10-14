@@ -61,6 +61,7 @@ export default {
   },
   computed: {
     bgImageStyle() {
+      // 这样赋值有一个性能优化的效果，当多次使用这个数据的时候可以从缓存里获取。
       const scrollY = this.scrollY
       let zIndex = 0
       let paddingTop = '70%'
