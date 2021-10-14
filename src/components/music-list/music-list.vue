@@ -12,10 +12,13 @@
       ref="bgImage">
       <div class="filter"></div>
     </div>
+    <!-- probe-type用法参考滚动组件文档 -->
     <scroll
       class="list"
       :style="scrollStyle"
-      v-loading="loading">
+      v-loading="loading"
+      :probe-type="3"
+      @scroll="onScroll">
       <div class="song-list-wrapper">
         <SongList :songs="songs" />
       </div>
@@ -25,6 +28,10 @@
 <script>
 import scroll from '@/components/base/scroll/scroll.vue'
 import SongList from '@/components/base/song-list/song-list.vue'
+
+// 定义常量 头部导航栏的高度
+const RESERVED_HEIGHT = 40
+
 export default {
   name: 'music-list',
   components: {
@@ -44,15 +51,39 @@ export default {
   },
   data() {
     return {
-      imageHeight: 0
+      imageHeight: 0,
+      scrollY: 0,
+      maxTranslateY: 0 // 最大滚动距离
     }
   },
   computed: {
     bgImageStyle() {
-      const paddingTop = '70%'
+      const scrollY = this.scrollY
+      let zIndex = 0
+      let paddingTop = '70%'
+      let height = 0
+      // ios的兼容问题
+      let translateZ = 0
+      if (scrollY > this.maxTranslateY) {
+        zIndex = 10
+        paddingTop = 0
+        height = `${RESERVED_HEIGHT}px`
+        translateZ = 1
+      }
+
+      // 缩放
+      let scale = 1
+      if (scrollY < 0) {
+        // 计算缩放的具体值
+        scale = 1 + Math.abs(scrollY / this.imageHeight)
+      }
+
       return {
+        zIndex,
         paddingTop,
-        backgroundImage: `url(${this.pic})`
+        height,
+        backgroundImage: `url(${this.pic})`,
+        transform: `scale(${scale})translateZ(${translateZ}px)`
       }
     },
     scrollStyle() {
@@ -62,14 +93,18 @@ export default {
     }
   },
   mounted() {
-    console.log('this.pic', this.pic)
-    console.log('this.$refs.bgImage', this.$refs.bgImage)
     // 获取背景高度，动态设置list的top值
     this.imageHeight = this.$refs.bgImage.clientHeight
+    // 设置最大滚动距离
+    this.maxTranslateY = this.imageHeight - RESERVED_HEIGHT
   },
   methods: {
     goBack() {
       this.$router.back()
+    },
+    // 获取滚动距离
+    onScroll(pos) {
+      this.scrollY = -pos.y
     }
   }
 }
