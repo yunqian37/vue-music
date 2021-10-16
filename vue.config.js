@@ -14,9 +14,7 @@ module.exports = {
   },
   // 代理设置
   devServer: {
-    // // 配置自动打开页面
-    // port: 8080,
-    // host: '192.168.3.21',
+    // 配置自动打开页面
     open: true,
     before(app) {
       registerRouter(app)
