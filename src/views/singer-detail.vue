@@ -34,10 +34,8 @@ export default {
       const singer = this.singer
       // 判断是否有歌手信息
       if (singer) {
-        console.log('singer', singer)
         ret = singer
       } else {
-        console.log('else', singer)
         // 没有歌手信息的情况下从session缓存中获取
         const cachedSinger = storage.session.get(SINGER_KEY)
         if (cachedSinger && cachedSinger.mid === this.$route.params.id) {
@@ -45,7 +43,6 @@ export default {
           ret = cachedSinger
         }
       }
-      console.log('ret', ret)
       return ret
     },
     pic() {
@@ -58,7 +55,6 @@ export default {
     }
   },
   async created() {
-    console.log('this.computedSinger', this.computedSinger)
     if (!this.computedSinger) {
       const path = this.$route.matched[0].path
       this.$router.push({
