@@ -20,6 +20,7 @@
       class="list"
       :style="scrollStyle"
       v-loading="loading"
+      v-no-result[noResultText]="noResult"
       :probe-type="3"
       @scroll="onScroll">
       <div class="song-list-wrapper">
@@ -50,7 +51,11 @@ export default {
     },
     title: String,
     pic: String,
-    loading: Boolean
+    loading: Boolean,
+    noResultText: {
+      type: String,
+      default: '抱歉，没有找到可播放的歌曲'
+    }
   },
   data() {
     return {
@@ -60,6 +65,9 @@ export default {
     }
   },
   computed: {
+    noResult() {
+      return !this.loading && !this.songs.length
+    },
     bgImageStyle() {
       // 这样赋值有一个性能优化的效果，当多次使用这个数据的时候可以从缓存里获取。
       const scrollY = this.scrollY

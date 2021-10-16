@@ -59,6 +59,7 @@ export default {
   async created() {
     // 获取轮播图数据
     const result = await getRecommend()
+    console.log('result', result)
     this.sliders = result.sliders
     this.albums = result.albums
   }
