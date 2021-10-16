@@ -1,6 +1,6 @@
 <template>
   <div class="top-list">
-    top-list
+    top-listtop-listtop-list
   </div>
 </template>
 <script>

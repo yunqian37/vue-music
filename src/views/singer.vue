@@ -9,6 +9,8 @@
 <script>
 import { getSingerList } from '@/service/siniger'
 import IndexList from '@/components/base/index-list/index-list.vue'
+import storage from 'good-storage'
+import { SINGER_KEY } from '@/assets/js/constant'
 export default {
   name: 'singer',
   components: {
@@ -17,7 +19,7 @@ export default {
   data() {
     return {
       singers: [],
-      selectedSinger: []
+      selectedSinger: null
     }
   },
   async created() {
@@ -27,9 +29,14 @@ export default {
   methods: {
     selectSinger(item) {
       this.selectedSinger = item
+      this.cacheSinger(item)
       this.$router.push({
         path: `/singer/${item.mid}`
       })
+    },
+    // session缓存singer数据
+    cacheSinger(singer) {
+      storage.session.set(SINGER_KEY, singer)
     }
   }
 }
