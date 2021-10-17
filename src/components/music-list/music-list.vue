@@ -24,7 +24,9 @@
       :probe-type="3"
       @scroll="onScroll">
       <div class="song-list-wrapper">
-        <SongList :songs="songs" />
+        <SongList
+          :songs="songs"
+          @select="selectItem"/>
       </div>
     </scroll>
   </div>
@@ -32,7 +34,7 @@
 <script>
 import scroll from '@/components/base/scroll/scroll.vue'
 import SongList from '@/components/base/song-list/song-list.vue'
-
+import { mapActions } from 'vuex'
 // 定义常量 头部导航栏的高度
 const RESERVED_HEIGHT = 40
 
@@ -130,7 +132,16 @@ export default {
     // 获取滚动距离
     onScroll(pos) {
       this.scrollY = -pos.y
-    }
+    },
+    selectItem({ song, index }) {
+      this.selectPlay({
+        list: this.songs,
+        index: index
+      })
+    },
+    ...mapActions([
+      'selectPlay'
+    ])
   }
 }
 </script>
