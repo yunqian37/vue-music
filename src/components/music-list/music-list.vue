@@ -3,13 +3,24 @@
     <div
       class="back"
       @click="goBack">
-      <i class="icon-back"></i>
+      <i class="icon-back" />
     </div>
     <h1 class="title">{{title}}</h1>
     <div
       class="bg-image"
       :style="bgImageStyle"
       ref="bgImage">
+      <div
+        class="play-btn-wrapper"
+        :style="playBtnStyle">
+        <div
+          v-show="songs.length > 0"
+          @click="random"
+          class="play-btn">
+          <i class="icon-play" />
+          <span class="text">随机播放全部</span>
+        </div>
+      </div>
       <!-- 动态设置模糊层 -->
       <div
         class="filter"
@@ -69,6 +80,16 @@ export default {
   computed: {
     noResult() {
       return !this.loading && !this.songs.length
+    },
+    // 动态显示随机播放按钮
+    playBtnStyle() {
+      let display = ''
+      if (this.scrollY >= this.maxTranslateY) {
+        display = 'none'
+      }
+      return {
+        display
+      }
     },
     bgImageStyle() {
       // 这样赋值有一个性能优化的效果，当多次使用这个数据的时候可以从缓存里获取。
@@ -133,14 +154,20 @@ export default {
     onScroll(pos) {
       this.scrollY = -pos.y
     },
+    // 选择播放
     selectItem({ song, index }) {
       this.selectPlay({
         list: this.songs,
         index: index
       })
     },
+    // 随机播放
+    random() {
+      this.randomPlay(this.songs)
+    },
     ...mapActions([
-      'selectPlay'
+      'selectPlay',
+      'randomPlay'
     ])
   }
 }
@@ -180,6 +207,34 @@ export default {
     width: 100%;
     transform-origin: top;
     background-size: cover;
+    .play-btn-wrapper {
+      position: absolute;
+      bottom: 20px;
+      z-index: 10;
+      width: 100%;
+      .play-btn {
+        box-sizing: border-box;
+        width: 135px;
+        padding: 7px 0;
+        margin: 0 auto;
+        text-align: center;
+        border: 1px solid $color-theme;
+        color: $color-theme;
+        border-radius: 100px;
+        font-size: 0;
+      }
+      .icon-play {
+        display: inline-block;
+        vertical-align: middle;
+        margin-right: 6px;
+        font-size: $font-size-medium-x;
+      }
+      .text {
+        display: inline-block;
+        vertical-align: middle;
+        font-size: $font-size-small;
+      }
+    }
     .filter {
       position: absolute;
       top: 0;
