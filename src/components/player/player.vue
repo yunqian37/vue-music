@@ -19,15 +19,13 @@
             <i class="icon-sequence"></i>
           </div>
           <div class="icon i-left">
-            <i class="icon-prev"></i>
+            <i class="icon-prev" @click="prev" />
           </div>
-          <div
-            class="icon i-center"
-            @click="togglePlay">
-            <i :class="playIcon"></i>
+          <div class="icon i-center">
+            <i :class="playIcon" @click="togglePlay"></i>
           </div>
           <div class="icon i-right">
-            <i class="icon-next"></i>
+            <i class="icon-next" @click="next" />
           </div>
           <div class="icon i-right">
             <i class="icon-not-favorite"></i>
@@ -58,6 +56,10 @@ export default {
     const playIcon = computed(() => {
       return playing.value ? 'icon-pause' : 'icon-play'
     })
+    // 获取当前歌曲的索引
+    const currentIndex = computed(() => store.state.currentIndex)
+    // 获取当前歌曲的播放列表
+    const playlist = computed(() => store.state.playList)
 
     // 监听当前播放歌曲是否改变
     watch(currentSong, (newSong) => {
@@ -85,6 +87,50 @@ export default {
     function pause() {
       store.commit('setPlayingState', false)
     }
+    // 切换上一首歌
+    function prev() {
+      const list = playlist.value
+      if (!list.length) return
+      if (list.length === 1) {
+        loop()
+      } else {
+        let index = currentIndex.value - 1
+        // 如果当前坐标为第一首歌则切换至播放列表的最后一首
+        if (index === -1) {
+          index = list.length - 1
+        }
+        store.commit('setCurrentIndex', index)
+        // 如果当前播放状态为暂停时则自动播放
+        if (!playing.value) {
+          store.commit('setPlayingState', true)
+        }
+      }
+    }
+    // 切换上一首歌
+    function next() {
+      const list = playlist.value
+      if (!list.length) return
+      if (list.length === 1) {
+        loop()
+      } else {
+        let index = currentIndex.value + 1
+        // 如果当前坐标为播放列表的最后一首则切换至第一首歌
+        if (index === list.length) {
+          index = 0
+        }
+        store.commit('setCurrentIndex', index)
+        // 如果当前播放状态为暂停时则自动播放
+        if (!playing.value) {
+          store.commit('setPlayingState', true)
+        }
+      }
+    }
+    // 歌曲循环播放
+    function loop() {
+      const audioEl = audioRef.value
+      audioEl.currentTime = 0
+      audioEl.play()
+    }
 
     return {
       audioRef,
@@ -93,7 +139,9 @@ export default {
       goBack,
       playIcon,
       togglePlay,
-      pause
+      pause,
+      prev,
+      next
     }
   }
 }
