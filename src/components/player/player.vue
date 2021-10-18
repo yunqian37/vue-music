@@ -147,9 +147,8 @@ export default {
     }
     function ready() {
       // 已经准备好了则不执行
-      if (!songReady.value) return
+      if (songReady.value) return
       songReady.value = true
-      console.log('ready ------', songReady.value)
     }
     function error() {
       songReady.value = true
