@@ -18,13 +18,13 @@
           <div class="icon i-left">
             <i class="icon-sequence"></i>
           </div>
-          <div class="icon i-left">
+          <div class="icon i-left" :class="disableCls">
             <i class="icon-prev" @click="prev" />
           </div>
-          <div class="icon i-center">
+          <div class="icon i-center" :class="disableCls">
             <i :class="playIcon" @click="togglePlay"></i>
           </div>
-          <div class="icon i-right">
+          <div class="icon i-right" :class="disableCls">
             <i class="icon-next" @click="next" />
           </div>
           <div class="icon i-right">
@@ -34,7 +34,9 @@
       </div>
       <audio
         ref="audioRef"
-        @pause="pause" />
+        @pause="pause"
+        @canplay="ready"
+        @error="error" />
     </div>
   </div>
 </template>
@@ -45,6 +47,8 @@ export default {
   name: 'player',
   setup() {
     const audioRef = ref(null)
+    // 初始配置 歌曲是否准备完毕
+    const songReady = ref(false)
     // 获取store数据
     const store = useStore()
     // 播放器状态 全屏还是收缩
@@ -56,6 +60,9 @@ export default {
     const playIcon = computed(() => {
       return playing.value ? 'icon-pause' : 'icon-play'
     })
+    const disableCls = computed(() => {
+      return songReady.value ? '' : 'disabled'
+    })
     // 获取当前歌曲的索引
     const currentIndex = computed(() => store.state.currentIndex)
     // 获取当前歌曲的播放列表
@@ -66,12 +73,15 @@ export default {
       if (!newSong.id || !newSong.url) {
         return
       }
+      songReady.value = false
+      console.log('watch currentSong ------', songReady.value)
       const audioEl = audioRef.value
       audioEl.src = newSong.url
       audioEl.play()
     })
     // 监听当前的播放状态 操作歌曲的暂停 & 播放
     watch(playing, (newPlaying) => {
+      if (!songReady.value) return
       const audioEl = audioRef.value
       newPlaying ? audioEl.play() : audioEl.pause()
     })
@@ -81,6 +91,8 @@ export default {
     }
     // 切换播放状态
     function togglePlay() {
+      console.log('togglePlay ------', songReady.value)
+      if (!songReady.value) return
       store.commit('setPlayingState', !playing.value)
     }
     // 不是用户操作点击的状态下暂停事件处理，比如电脑进入睡眠。。。
@@ -89,8 +101,9 @@ export default {
     }
     // 切换上一首歌
     function prev() {
+      console.log('prev ------', songReady.value)
       const list = playlist.value
-      if (!list.length) return
+      if (!songReady.value || !list.length) return
       if (list.length === 1) {
         loop()
       } else {
@@ -108,8 +121,9 @@ export default {
     }
     // 切换上一首歌
     function next() {
+      console.log('next ------', songReady.value)
       const list = playlist.value
-      if (!list.length) return
+      if (!songReady.value || !list.length) return
       if (list.length === 1) {
         loop()
       } else {
@@ -131,6 +145,15 @@ export default {
       audioEl.currentTime = 0
       audioEl.play()
     }
+    function ready() {
+      // 已经准备好了则不执行
+      if (!songReady.value) return
+      songReady.value = true
+      console.log('ready ------', songReady.value)
+    }
+    function error() {
+      songReady.value = true
+    }
 
     return {
       audioRef,
@@ -141,7 +164,10 @@ export default {
       togglePlay,
       pause,
       prev,
-      next
+      next,
+      ready,
+      disableCls,
+      error
     }
   }
 }
