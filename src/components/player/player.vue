@@ -28,7 +28,9 @@
             <i class="icon-next" @click="next" />
           </div>
           <div class="icon i-right">
-            <i class="icon-not-favorite"></i>
+            <i
+              :class="getFavoriteIcon(currentSong)"
+              @click="toggleFavorite(currentSong)" />
           </div>
         </div>
       </div>
@@ -44,6 +46,7 @@
 import { useStore } from 'vuex'
 import { computed, watch, ref } from 'vue'
 import useMode from './use-mode'
+import useFavorite from './use-favorite'
 export default {
   name: 'player',
   setup() {
@@ -51,6 +54,7 @@ export default {
     // 初始配置 歌曲是否准备完毕
     const songReady = ref(false)
     const { modeIcon, changeMode } = useMode()
+    const { getFavoriteIcon, toggleFavorite } = useFavorite()
     // 获取store数据
     const store = useStore()
     // 播放器状态 全屏还是收缩
@@ -76,7 +80,6 @@ export default {
         return
       }
       songReady.value = false
-      console.log('watch currentSong ------', songReady.value)
       const audioEl = audioRef.value
       audioEl.src = newSong.url
       audioEl.play()
@@ -93,7 +96,6 @@ export default {
     }
     // 切换播放状态
     function togglePlay() {
-      console.log('togglePlay ------', songReady.value)
       if (!songReady.value) return
       store.commit('setPlayingState', !playing.value)
     }
@@ -103,7 +105,6 @@ export default {
     }
     // 切换上一首歌
     function prev() {
-      console.log('prev ------', songReady.value)
       const list = playlist.value
       if (!songReady.value || !list.length) return
       if (list.length === 1) {
@@ -123,7 +124,6 @@ export default {
     }
     // 切换上一首歌
     function next() {
-      console.log('next ------', songReady.value)
       const list = playlist.value
       if (!songReady.value || !list.length) return
       if (list.length === 1) {
@@ -171,7 +171,10 @@ export default {
       error,
       // use-mode
       modeIcon,
-      changeMode
+      changeMode,
+      // use-favorite
+      getFavoriteIcon,
+      toggleFavorite
     }
   }
 }

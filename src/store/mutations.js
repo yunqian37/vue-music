@@ -24,6 +24,10 @@ const mutations = {
   // 设置播放器状态
   setFullScreen(state, fullScreen) {
     state.fullScreen = fullScreen
+  },
+  // 设置歌曲收藏列表
+  setFavoriteList(state, list) {
+    state.favoriteList = list
   }
 }
 
