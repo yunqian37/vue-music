@@ -20,7 +20,9 @@
           <span class="time time-l">{{formatTime(currentTime)}}</span>
           <div class="progress-bar-wrapper">
             <progressBar
-              :progress="progress"  />
+              :progress="progress"
+              @progress-changing="onProgressChanging"
+              @progress-change="onProgressChanged" />
           </div>
           <span class="time time-r">{{formatTime(currentSong.duration)}}</span>
         </div>
@@ -50,7 +52,8 @@
         @pause="pause"
         @canplay="ready"
         @error="error"
-        @timeupdate="updateTime" />
+        @timeupdate="updateTime"
+        @ended="end" />
     </div>
   </div>
 </template>
@@ -60,7 +63,9 @@ import { computed, watch, ref } from 'vue'
 import useMode from './use-mode'
 import useFavorite from './use-favorite'
 import progressBar from './progress-bar.vue'
-import { formatTime } from '../../assets/js/util'
+import { formatTime } from '@/assets/js/util'
+import { PLAY_MODE } from '@/assets/js/constant'
+
 export default {
   name: 'player',
   components: {
@@ -69,6 +74,10 @@ export default {
   setup() {
     const audioRef = ref(null)
     const currentTime = ref(0)
+    // 当前进度条是否被拖动
+    let progressChanging = false
+    // 歌曲播放模式
+    const playMode = computed(() => store.state.playMode)
     // 初始配置 歌曲是否准备完毕
     const songReady = ref(false)
 
@@ -172,6 +181,7 @@ export default {
       const audioEl = audioRef.value
       audioEl.currentTime = 0
       audioEl.play()
+      store.commit('setPlayingState', true)
     }
     function ready() {
       // 已经准备好了则不执行
@@ -183,7 +193,31 @@ export default {
     }
     // 当前播放时间
     function updateTime(e) {
-      currentTime.value = e.target.currentTime
+      if (!progressChanging) {
+        currentTime.value = e.target.currentTime
+      }
+    }
+    function onProgressChanging(progress) {
+      progressChanging = true
+      // 实时修改当前时间
+      currentTime.value = currentSong.value.duration * progress
+    }
+    function onProgressChanged(progress) {
+      // 松开拖动时修改播放时间
+      audioRef.value.currentTime = currentTime.value = currentSong.value.duration * progress
+      // 如果歌曲状态是暂停状态 拖动完毕播放
+      if (!playing.value) {
+        store.commit('setPlayingState', true)
+      }
+    }
+    // 当前歌曲播放结束操作
+    function end() {
+      currentTime.value = 0
+      if (playMode.value === PLAY_MODE.loop) {
+        loop()
+      } else {
+        next()
+      }
     }
 
     return {
@@ -209,7 +243,10 @@ export default {
       progress,
       currentTime,
       updateTime,
-      formatTime
+      formatTime,
+      onProgressChanging,
+      onProgressChanged,
+      end
     }
   }
 }
