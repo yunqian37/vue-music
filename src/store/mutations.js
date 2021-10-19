@@ -28,6 +28,15 @@ const mutations = {
   // 设置歌曲收藏列表
   setFavoriteList(state, list) {
     state.favoriteList = list
+  },
+  // 给歌曲设置歌词
+  addSongLyric(state, { song, lyric }) {
+    state.sequenceList.map((item) => {
+      if (item.mid === song.mid) {
+        item.lyric = lyric
+      }
+      return item
+    })
   }
 }
 

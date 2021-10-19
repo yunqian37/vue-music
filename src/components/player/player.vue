@@ -29,7 +29,26 @@
                 :src="currentSong.pic" />
             </div>
           </div>
+          <div class="playing-lyric-wrapper">
+            <div class="playing-lyric">{{playingLyric}}</div>
+          </div>
         </div>
+        <scroll class="middle-r" ref="lyricScrollRef">
+          <div class="lyric-wrapper">
+            <div v-if="currentLyric" ref="lyricListRef">
+              <p
+                class="text"
+                :class="{'current': currentLineNum === index}"
+                v-for="(line, index) in currentLyric.lines"
+                :key="line.num">
+                {{line.txt}}
+              </p>
+            </div>
+            <div class="pure-music" v-show="pureMusicLyric">
+              <p>{{pureMusicLyric}}</p>
+            </div>
+          </div>
+        </scroll>
       </div>
 
       <div class="bottom">
@@ -84,10 +103,13 @@ import progressBar from './progress-bar.vue'
 import { formatTime } from '@/assets/js/util'
 import { PLAY_MODE } from '@/assets/js/constant'
 import useCd from './use-cd'
+import useLyric from './use-lyric'
+import Scroll from '@/components/base/scroll/scroll.vue'
 export default {
   name: 'player',
   components: {
-    progressBar
+    progressBar,
+    Scroll
   },
   setup() {
     const audioRef = ref(null)
@@ -102,6 +124,7 @@ export default {
     const { modeIcon, changeMode } = useMode()
     const { getFavoriteIcon, toggleFavorite } = useFavorite()
     const { cdCls, cdRef, cdImageRef } = useCd()
+    const { currentLyric, currentLineNum, playLyric, lyricScrollRef, lyricListRef, stopLyric, pureMusicLyric, playingLyric } = useLyric({ songReady, currentTime })
 
     // 获取store数据
     const store = useStore()
@@ -141,7 +164,14 @@ export default {
     watch(playing, (newPlaying) => {
       if (!songReady.value) return
       const audioEl = audioRef.value
-      newPlaying ? audioEl.play() : audioEl.pause()
+      // 根据播放状态处理歌词滚动效果和歌曲播放
+      if (newPlaying) {
+        audioEl.play()
+        stopLyric()
+      } else {
+        audioEl.pause()
+        stopLyric()
+      }
     })
 
     // 返回，更改播放器状态
@@ -206,6 +236,7 @@ export default {
       // 已经准备好了则不执行
       if (songReady.value) return
       songReady.value = true
+      playLyric()
     }
     function error() {
       songReady.value = true
@@ -220,6 +251,10 @@ export default {
       progressChanging = true
       // 实时修改当前时间
       currentTime.value = currentSong.value.duration * progress
+      // 拖动滚动条时歌词也进行拖动
+      playLyric()
+      // 歌词停止滚动
+      stopLyric()
     }
     function onProgressChanged(progress) {
       // 松开拖动时修改播放时间
@@ -228,6 +263,8 @@ export default {
       if (!playing.value) {
         store.commit('setPlayingState', true)
       }
+      // 滚动条拖到结束 歌词开始滚动
+      playLyric()
     }
     // 当前歌曲播放结束操作
     function end() {
@@ -269,7 +306,14 @@ export default {
       // cd旋转相关
       cdCls,
       cdRef,
-      cdImageRef
+      cdImageRef,
+      // 歌词相关
+      currentLyric,
+      currentLineNum,
+      lyricScrollRef,
+      lyricListRef,
+      pureMusicLyric,
+      playingLyric
     }
   }
 }
@@ -369,6 +413,45 @@ export default {
           .playing {
             animation: rotate 20s linear infinite
           }
+        }
+      }
+      .playing-lyric-wrapper {
+        width: 80%;
+        margin: 30px auto 0 auto;
+        overflow: hidden;
+        text-align: center;
+        .playing-lyric {
+          height: 20px;
+          line-height: 20px;
+          font-size: $font-size-medium;
+          color: $color-text-l;
+        }
+      }
+    }
+    .middle-r {
+      display: inline-block;
+      vertical-align: top;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      .lyric-wrapper {
+        width: 80%;
+        margin: 0 auto;
+        overflow: hidden;
+        text-align: center;
+        .text {
+          line-height: 32px;
+          color: $color-text-l;
+          font-size: $font-size-medium;
+          &.current {
+            color: $color-text;
+          }
+        }
+        .pure-music {
+          padding-top: 50%;
+          line-height: 32px;
+          color: $color-text-l;
+          font-size: $font-size-medium;
         }
       }
     }
