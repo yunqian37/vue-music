@@ -13,7 +13,18 @@
         <h1 class="title">{{currentSong.name}}</h1>
         <h2 class="subtitle">{{currentSong.singer}}</h2>
       </div>
+
       <div class="bottom">
+        <!-- 进度条 -->
+        <div class="progress-wrapper">
+          <span class="time time-l">{{formatTime(currentTime)}}</span>
+          <div class="progress-bar-wrapper">
+            <progressBar
+              :progress="progress"  />
+          </div>
+          <span class="time time-r">{{formatTime(currentSong.duration)}}</span>
+        </div>
+        <!-- 歌曲切换按钮 -->
         <div class="operators">
           <div class="icon i-left">
             <i @click="changeMode" :class="modeIcon" />
@@ -38,7 +49,8 @@
         ref="audioRef"
         @pause="pause"
         @canplay="ready"
-        @error="error" />
+        @error="error"
+        @timeupdate="updateTime" />
     </div>
   </div>
 </template>
@@ -47,14 +59,22 @@ import { useStore } from 'vuex'
 import { computed, watch, ref } from 'vue'
 import useMode from './use-mode'
 import useFavorite from './use-favorite'
+import progressBar from './progress-bar.vue'
+import { formatTime } from '../../assets/js/util'
 export default {
   name: 'player',
+  components: {
+    progressBar
+  },
   setup() {
     const audioRef = ref(null)
+    const currentTime = ref(0)
     // 初始配置 歌曲是否准备完毕
     const songReady = ref(false)
+
     const { modeIcon, changeMode } = useMode()
     const { getFavoriteIcon, toggleFavorite } = useFavorite()
+
     // 获取store数据
     const store = useStore()
     // 播放器状态 全屏还是收缩
@@ -73,12 +93,17 @@ export default {
     const currentIndex = computed(() => store.state.currentIndex)
     // 获取当前歌曲的播放列表
     const playlist = computed(() => store.state.playList)
+    // 计算进度条
+    const progress = computed(() => {
+      return currentTime.value / currentSong.value.duration
+    })
 
     // 监听当前播放歌曲是否改变
     watch(currentSong, (newSong) => {
       if (!newSong.id || !newSong.url) {
         return
       }
+      currentTime.value = 0
       songReady.value = false
       const audioEl = audioRef.value
       audioEl.src = newSong.url
@@ -90,6 +115,7 @@ export default {
       const audioEl = audioRef.value
       newPlaying ? audioEl.play() : audioEl.pause()
     })
+
     // 返回，更改播放器状态
     function goBack() {
       store.commit('setFullScreen', false)
@@ -155,6 +181,10 @@ export default {
     function error() {
       songReady.value = true
     }
+    // 当前播放时间
+    function updateTime(e) {
+      currentTime.value = e.target.currentTime
+    }
 
     return {
       audioRef,
@@ -174,7 +204,12 @@ export default {
       changeMode,
       // use-favorite
       getFavoriteIcon,
-      toggleFavorite
+      toggleFavorite,
+      // 进度条相关
+      progress,
+      currentTime,
+      updateTime,
+      formatTime
     }
   }
 }
@@ -240,6 +275,29 @@ export default {
     position: absolute;
     bottom: 50px;
     width: 100%;
+    .progress-wrapper {
+      display: flex;
+      align-items: center;
+      width: 80%;
+      margin: 0px auto;
+      padding: 10px 0;
+      .time {
+        color: $color-text;
+        font-size: $font-size-small;
+        flex: 0 0 40px;
+        line-height: 30px;
+        width: 40px;
+        &.time-l {
+          text-align: left;
+        }
+        &.time-r {
+          text-align: right;
+        }
+      }
+      .progress-bar-wrapper {
+        flex: 1;
+      }
+    }
     .operators {
       display: flex;
       align-items: center;
