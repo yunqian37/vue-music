@@ -1,5 +1,5 @@
 <template>
-  <div class="player">
+  <div class="player" v-show="playlist.length">
     <div
       class="normal-player"
       v-show="fullScreen">
@@ -54,7 +54,6 @@
           </div>
         </scroll>
       </div>
-
       <div class="bottom">
         <div class="dot-wrapper">
           <span
@@ -96,14 +95,15 @@
           </div>
         </div>
       </div>
-      <audio
-        ref="audioRef"
-        @pause="pause"
-        @canplay="ready"
-        @error="error"
-        @timeupdate="updateTime"
-        @ended="end" />
     </div>
+    <MiniPlayer />
+    <audio
+      ref="audioRef"
+      @pause="pause"
+      @canplay="ready"
+      @error="error"
+      @timeupdate="updateTime"
+      @ended="end" />
   </div>
 </template>
 <script>
@@ -118,11 +118,13 @@ import useCd from './use-cd'
 import useLyric from './use-lyric'
 import Scroll from '@/components/base/scroll/scroll.vue'
 import useMiddleInteractive from './use-middle-interactive'
+import MiniPlayer from './mini-player.vue'
 export default {
   name: 'player',
   components: {
     progressBar,
-    Scroll
+    Scroll,
+    MiniPlayer
   },
   setup() {
     const audioRef = ref(null)
@@ -291,6 +293,7 @@ export default {
     }
 
     return {
+      playlist,
       audioRef,
       fullScreen,
       currentSong,
