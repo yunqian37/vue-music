@@ -12,10 +12,25 @@ export default function useMiddleInteractive() {
   function onMiddleTouchStart(e) {
     // 获取手指按下去时的x坐标
     touch.startX = e.touches[0].pageX
+    touch.startY = e.touches[0].pageY
+    touch.directionLocked = ''
   }
   function onMiddleTouchMove(e) {
     // 手指拖动的位移
     const deltaX = e.touches[0].pageX - touch.startX
+    const deltaY = e.touches[0].pageY - touch.startY
+
+    // 处理歌词滑动方向
+    const absDeltaX = Math.abs(deltaX)
+    const absDeltaY = Math.abs(deltaY)
+
+    if (!touch.directionLocked) {
+      touch.directionLocked = absDeltaX >= absDeltaY ? 'h' : 'v'
+    }
+    if (touch.directionLocked === 'v') {
+      return
+    }
+
     // window.innerWidth:屏幕的宽度
     const left = currentView === 'cd' ? 0 : -window.innerWidth
     // 歌词列表偏移量 限制在0与window.innerWidth之间
