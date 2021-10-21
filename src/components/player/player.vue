@@ -68,6 +68,7 @@
           <span class="time time-l">{{formatTime(currentTime)}}</span>
           <div class="progress-bar-wrapper">
             <progressBar
+              ref="barRef"
               :progress="progress"
               @progress-changing="onProgressChanging"
               @progress-change="onProgressChanged" />
@@ -110,7 +111,7 @@
 </template>
 <script>
 import { useStore } from 'vuex'
-import { computed, watch, ref } from 'vue'
+import { computed, watch, ref, nextTick } from 'vue'
 import useMode from './use-mode'
 import useFavorite from './use-favorite'
 import progressBar from './progress-bar.vue'
@@ -130,6 +131,7 @@ export default {
   },
   setup() {
     const audioRef = ref(null)
+    const barRef = ref(null)
     const currentTime = ref(0)
     // 当前进度条是否被拖动
     let progressChanging = false
@@ -189,6 +191,13 @@ export default {
       } else {
         audioEl.pause()
         stopLyric()
+      }
+    })
+    // 处理歌曲播放进度条迷你状态与全屏状态播放时的位置问题
+    watch(fullScreen, async (newFullScreen) => {
+      if (newFullScreen) {
+        await nextTick()
+        barRef.value.setOffset(progress.value)
       }
     })
 
@@ -297,6 +306,7 @@ export default {
     return {
       playlist,
       audioRef,
+      barRef,
       fullScreen,
       currentSong,
       goBack,
