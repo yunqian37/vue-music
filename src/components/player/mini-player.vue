@@ -14,9 +14,16 @@
             height="40" />
         </div>
       </div>
-      <div class="slider-wrapper">
-        <h2 class="name">{{currentSong.name}}</h2>
-        <p class="desc">{{currentSong.singer}}</p>
+      <div class="slider-wrapper" ref="sliderWrapperRef">
+        <div class="slider-group">
+          <div
+            class="slider-page"
+            v-for="song in playlist"
+            :key="song.id">
+            <h2 class="name">{{currentSong.name}}</h2>
+            <p class="desc">{{currentSong.singer}}</p>
+          </div>
+        </div>
       </div>
       <div class="control">
         <ProgressCircle
@@ -36,6 +43,7 @@ import { computed } from 'vue'
 import { useStore } from 'vuex'
 import useCd from './use-cd'
 import ProgressCircle from './progress-circle.vue'
+import useMiniSlider from './use-mini-slider'
 export default {
   name: 'mini-player',
   components: {
@@ -53,8 +61,10 @@ export default {
     const fullScreen = computed(() => store.state.fullScreen)
     const currentSong = computed(() => store.getters.currentSong)
     const playing = computed(() => store.state.playing)
+    const playlist = computed(() => store.state.playList)
 
     const { cdCls, cdRef, cdImageRef } = useCd()
+    const { sliderWrapperRef } = useMiniSlider()
 
     const miniPlayIcon = computed(() => {
       return playing.value ? 'icon-pause-mini' : 'icon-play-mini'
@@ -71,7 +81,9 @@ export default {
       cdRef,
       cdImageRef,
       showNormalPlayer,
-      miniPlayIcon
+      miniPlayIcon,
+      playlist,
+      sliderWrapperRef
     }
   }
 }
@@ -113,16 +125,27 @@ export default {
     flex: 1;
     line-height: 20px;
     overflow: hidden;
-    .name {
-      margin-bottom: 2px;
-      @include no-wrap();
-      font-size: $font-size-medium;
-      color: $color-text;
-    }
-    .desc {
-      @include no-wrap();
-      font-size: $font-size-small;
-      color: $color-text-d;
+    .slider-group {
+      position: relative;
+      overflow: hidden;
+      white-space: nowrap;
+      .slider-page {
+        display: inline-block;
+        width: 100%;
+        transform: translate3d(0, 0, 0);
+        backface-visibility: hidden;
+        .name {
+          margin-bottom: 2px;
+          @include no-wrap();
+          font-size: $font-size-medium;
+          color: $color-text;
+        }
+        .desc {
+          @include no-wrap();
+          font-size: $font-size-small;
+          color: $color-text-d;
+        }
+      }
     }
   }
   .control {
