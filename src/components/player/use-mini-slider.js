@@ -21,11 +21,9 @@ export default function useMiniSlider() {
   onMounted(() => {
     let sliderVal
     watch(sliderShow, async (newSliderShow) => {
-      console.log('开始')
       if (newSliderShow) {
         await nextTick()
         if (!sliderVal) {
-          console.log('初始化')
           // 设置BScroll
           sliderVal = slider.value = new BScroll(sliderWrapperRef.value, {
             click: true,
@@ -44,10 +42,8 @@ export default function useMiniSlider() {
             store.commit('setPlayingState', true)
           })
         } else {
-          console.log('refresh')
           sliderVal.refresh()
         }
-        console.log('滚动了')
         // 横向滚动对应位置
         sliderVal.goToPage(currentIndex.value, 0, 0)
       }

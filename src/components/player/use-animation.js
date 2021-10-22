@@ -3,8 +3,14 @@ import animations from 'create-keyframe-animation'
 
 export default function useAnimation() {
   const cdWrapperRef = ref(null)
+  let entering = false
+  let leaving = false
 
   function enter(el, done) {
+    if (leaving) {
+      afterLeave()
+    }
+    entering = true
     const { x, y, scale } = getPosAndScale()
     const animation = {
       0: {
@@ -26,10 +32,15 @@ export default function useAnimation() {
     animations.runAnimation(cdWrapperRef.value, 'move', done)
   }
   function afterEnter() {
+    entering = false
     animations.unregisterAnimation('move')
     cdWrapperRef.value.animation = ''
   }
   function leave(el, done) {
+    if (entering) {
+      afterEnter()
+    }
+    leaving = true
     const { x, y, scale } = getPosAndScale()
     const cdWrapperEl = cdWrapperRef.value
     cdWrapperEl.style.transition = 'all .6s cubic-bezier(0.45, 0, 0.55, 1)'
@@ -43,6 +54,7 @@ export default function useAnimation() {
   }
   // 清理操作
   function afterLeave() {
+    leaving = false
     const cdWrapperEl = cdWrapperRef.value
     cdWrapperEl.style.transition = ''
     cdWrapperEl.style.transform = ''
