@@ -5,7 +5,8 @@
         <li
           class="item"
           v-for="item in topList"
-          :key="item.id">
+          :key="item.id"
+          @click="selectItem(item)">
           <div class="icon">
             <img
               width="100"
@@ -24,11 +25,19 @@
         </li>
       </ul>
     </scroll>
+    <router-view v-slot="{ Component }">
+      <transition appear name="slide">
+        <component :is="Component" :data="selectedTop" />
+      </transition>
+    </router-view>
   </div>
 </template>
 <script>
 import scroll from '@/components/base/scroll/scroll.vue'
 import { getTopList } from '@/service/top-list'
+import { TOP_KEY } from '@/assets/js/constant'
+import storage from 'good-storage'
+
 export default {
   name: 'top-list',
   components: {
@@ -37,13 +46,26 @@ export default {
   data() {
     return {
       topList: [],
-      loading: true
+      loading: true,
+      selectedTop: null
     }
   },
   async created() {
     const result = await getTopList()
     this.topList = result.topList
     this.loading = false
+  },
+  methods: {
+    selectItem(top) {
+      this.selectedTop = top
+      this.cacheTop(top)
+      this.$router.push({
+        path: `/top-list/${top.mid}`
+      })
+    },
+    cacheTop(top) {
+      storage.session.set(TOP_KEY, top)
+    }
   }
 }
 </script>
