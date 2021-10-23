@@ -43,7 +43,8 @@
   </div>
 </template>
 <script>
-import scroll from '@/components/base/scroll/scroll.vue'
+// import scroll from '@/components/base/scroll/scroll.vue'
+import scroll from '@/components/wrap-scroll/index' // 高阶scroll组件
 import SongList from '@/components/base/song-list/song-list.vue'
 import { mapActions, mapState } from 'vuex'
 // 定义常量 头部导航栏的高度

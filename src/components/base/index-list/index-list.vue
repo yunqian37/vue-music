@@ -48,7 +48,8 @@
   </scroll>
 </template>
 <script>
-import scroll from '@/components/base/scroll/scroll'
+// import scroll from '@/components/base/scroll/scroll'
+import scroll from '@/components/wrap-scroll/index'
 import useFixed from './use-fixed'
 import useShortcut from './use-shortcut'
 export default {
