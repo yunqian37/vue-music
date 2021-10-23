@@ -18,7 +18,7 @@
               v-for="item in albums"
               :key="item.id"
               class="item"
-            >
+              @click="selectIem(item)">
               <div class="icon">
                 <!-- v-lazy：懒加载图片指令 -->
                 <img width="60" height="60" v-lazy="item.pic">
@@ -32,6 +32,11 @@
         </div>
       </div>
     </Scroll>
+    <router-view v-slot="{ Component }">
+      <transition appear name="slide">
+        <component :is="Component" :data="selectedAlbum" />
+      </transition>
+    </router-view>
   </div>
 </template>
 <script>
@@ -39,6 +44,9 @@ import { getRecommend } from '@/service/recommend'
 import Slider from '@/components/base/slider/slider.vue'
 // import Scroll from '@/components/base/scroll/scroll.vue'
 import Scroll from '@/components/wrap-scroll/index'
+import storage from 'good-storage'
+import { ALBUM_KEY } from '@/assets/js/constant'
+
 export default {
   name: 'recommend',
   components: {
@@ -49,7 +57,8 @@ export default {
     return {
       sliders: [], // 轮播图数据
       albums: [],
-      loadingText: 'ing...' // 自定义指令的动态参数
+      loadingText: 'ing...', // 自定义指令的动态参数
+      selectedAlbum: null
     }
   },
   computed: {
@@ -62,6 +71,18 @@ export default {
     const result = await getRecommend()
     this.sliders = result.sliders
     this.albums = result.albums
+  },
+  methods: {
+    selectIem(album) {
+      this.selectedAlbum = album
+      this.cacheAlbum(album)
+      this.$router.push({
+        path: `/recommend/${album.id}`
+      })
+    },
+    cacheAlbum(album) {
+      storage.session.set(ALBUM_KEY, album)
+    }
   }
 }
 </script>
