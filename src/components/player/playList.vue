@@ -33,7 +33,10 @@
                   <span class="favorite" @click.stop="toggleFavorite(song)">
                     <i :class="getFavoriteIcon(song)"></i>
                   </span>
-                  <span class="delete" @click.stop="removeSong(song)">
+                  <span
+                    class="delete"
+                    @click.stop="removeSong(song)"
+                    :class="{'disable':removing}">
                     <i class="icon-delete"></i>
                   </span>
                 </li>
@@ -62,6 +65,7 @@ export default {
   },
   setup() {
     const visible = ref(false)
+    const removing = ref(false)
     const scrollRef = ref(null)
     const listRef = ref(null)
 
@@ -73,8 +77,9 @@ export default {
     const { modeIcon, changeMode, modeText } = useMode()
     const { getFavoriteIcon, toggleFavorite } = useFavorite()
 
-    watch(currentSong, async () => {
-      if (!visible.value) return
+    watch(currentSong, async (newSong) => {
+      // 处理快速点击删除时的报错问题
+      if (!visible.value || !newSong.id) return
       await nextTick()
       scrollToCurrent()
     })
@@ -98,13 +103,12 @@ export default {
     }
     // 获取当前歌曲的索引
     function scrollToCurrent() {
-      console.log('111')
       const index = sequenceList.value.findIndex((song) => {
         return currentSong.value.id === song.id
       })
-      console.log('222')
+      // 处理快速点击删除时的报错问题
+      if (index === -1) return
       const target = listRef.value.$el.children[index]
-      console.log('333')
       scrollRef.value.scroll.scrollToElement(target, 300)
     }
     function selectItem(song) {
@@ -115,7 +119,14 @@ export default {
       store.commit('setPlayingState', true)
     }
     function removeSong(song) {
+      // 控制用户不能快速点击删除按钮
+      if (removing.value) return
+      removing.value = true
       store.dispatch('removeSong', song)
+      // 因为动画时间为300毫秒，所以这里处理300毫秒之后改为false
+      setTimeout(() => {
+        removing.value = false
+      }, 300)
     }
 
     return {
@@ -129,6 +140,7 @@ export default {
       listRef,
       selectItem,
       removeSong,
+      removing,
       // use-mode
       modeIcon,
       changeMode,

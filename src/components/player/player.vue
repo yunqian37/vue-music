@@ -187,6 +187,7 @@ export default {
       const audioEl = audioRef.value
       audioEl.src = newSong.url
       audioEl.play()
+      store.commit('setPlayingState', true)
     })
     // 监听当前的播放状态 操作歌曲的暂停 & 播放
     watch(playing, (newPlaying) => {
@@ -236,9 +237,9 @@ export default {
         }
         store.commit('setCurrentIndex', index)
         // 如果当前播放状态为暂停时则自动播放
-        if (!playing.value) {
-          store.commit('setPlayingState', true)
-        }
+        // if (!playing.value) {
+        //   store.commit('setPlayingState', true)
+        // }
       }
     }
     // 切换上一首歌
@@ -255,9 +256,9 @@ export default {
         }
         store.commit('setCurrentIndex', index)
         // 如果当前播放状态为暂停时则自动播放
-        if (!playing.value) {
-          store.commit('setPlayingState', true)
-        }
+        // if (!playing.value) {
+        //   store.commit('setPlayingState', true)
+        // }
       }
     }
     // 歌曲循环播放

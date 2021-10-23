@@ -45,6 +45,8 @@ export function removeSong({ commit, state }, song) {
 
   const sequenceIndex = findIndex(sequenceList, song)
   const playIndex = findIndex(playList, song)
+  // 对于用户快速点击删除按钮时的保护操作
+  if (sequenceIndex < 0 || playIndex < 0) return
 
   sequenceList.splice(sequenceIndex, 1)
   playList.splice(playIndex, 1)
