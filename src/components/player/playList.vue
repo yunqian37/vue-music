@@ -18,19 +18,27 @@
             </h1>
           </div>
           <scroll class="list-content" ref="scrollRef">
-            <ul ref="listRef">
-              <li
-                class="item"
-                v-for="song in sequenceList"
-                :key="song.id"
-                @click="selectItem(song)">
-                <i class="current" :class="getCurrentIcon(song)"></i>
-                <span class="text">{{song.name}}</span>
-                <span class="favorite" @click="toggleFavorite(song)">
-                  <i :class="getFavoriteIcon(song)"></i>
-                </span>
-              </li>
-            </ul>
+            <transition-group
+              ref="listRef"
+              name="list"
+              tag="ul">
+              <!-- <ul ref="listRef"> -->
+                <li
+                  class="item"
+                  v-for="song in sequenceList"
+                  :key="song.id"
+                  @click="selectItem(song)">
+                  <i class="current" :class="getCurrentIcon(song)"></i>
+                  <span class="text">{{song.name}}</span>
+                  <span class="favorite" @click.stop="toggleFavorite(song)">
+                    <i :class="getFavoriteIcon(song)"></i>
+                  </span>
+                  <span class="delete" @click.stop="removeSong(song)">
+                    <i class="icon-delete"></i>
+                  </span>
+                </li>
+              <!-- </ul> -->
+            </transition-group>
           </scroll>
           <div class="list-footer" @click="hide">
             <span>关闭</span>
@@ -90,10 +98,13 @@ export default {
     }
     // 获取当前歌曲的索引
     function scrollToCurrent() {
+      console.log('111')
       const index = sequenceList.value.findIndex((song) => {
         return currentSong.value.id === song.id
       })
-      const target = listRef.value.children[index]
+      console.log('222')
+      const target = listRef.value.$el.children[index]
+      console.log('333')
       scrollRef.value.scroll.scrollToElement(target, 300)
     }
     function selectItem(song) {
@@ -103,6 +114,10 @@ export default {
       store.commit('setCurrentIndex', index)
       store.commit('setPlayingState', true)
     }
+    function removeSong(song) {
+      store.dispatch('removeSong', song)
+    }
+
     return {
       visible,
       playlist,
@@ -113,6 +128,7 @@ export default {
       scrollRef,
       listRef,
       selectItem,
+      removeSong,
       // use-mode
       modeIcon,
       changeMode,
@@ -193,6 +209,14 @@ export default {
           color: $color-theme;
           .icon-favorite {
             color: $color-sub-theme;
+          }
+        }
+        .delete {
+          @include extend-click();
+          font-size: $font-size-small;
+          color: $color-theme;
+          &.disable {
+            color: $color-theme-d;
           }
         }
       }
