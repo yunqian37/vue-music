@@ -45,7 +45,7 @@
 <script>
 import scroll from '@/components/base/scroll/scroll.vue'
 import SongList from '@/components/base/song-list/song-list.vue'
-import { mapActions } from 'vuex'
+import { mapActions, mapState } from 'vuex'
 // 定义常量 头部导航栏的高度
 const RESERVED_HEIGHT = 40
 
@@ -122,8 +122,10 @@ export default {
       }
     },
     scrollStyle() {
+      const bottom = this.playList.length ? '60px' : '0'
       return {
-        top: `${this.imageHeight}px`
+        top: `${this.imageHeight}px`,
+        bottom
       }
     },
     filterStyle() {
@@ -138,7 +140,10 @@ export default {
       return {
         backdropFilter: `blur(${blur}px)`
       }
-    }
+    },
+    ...mapState([
+      'playList'
+    ])
   },
   mounted() {
     // 获取背景高度，动态设置list的top值
