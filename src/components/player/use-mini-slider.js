@@ -55,8 +55,8 @@ export default function useMiniSlider() {
       }
     })
     // 监听歌曲列表变化并实行刷新
-    watch(playlist, async () => {
-      if (sliderVal && sliderShow.value) {
+    watch(playlist, async (newList) => {
+      if (sliderVal && sliderShow.value && newList.length) {
         await nextTick()
         sliderVal.refresh()
       }

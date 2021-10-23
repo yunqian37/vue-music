@@ -15,6 +15,9 @@
                 :class="modeIcon"
                 @click="changeMode"></i>
               <span class="text">{{modeText}}</span>
+              <span class="clear" @click="showConfirm">
+                <i class="icon-clear" />
+              </span>
             </h1>
           </div>
           <scroll class="list-content" ref="scrollRef">
@@ -47,6 +50,11 @@
             <span>关闭</span>
           </div>
         </div>
+        <Confirm
+          ref="confirmRef"
+          @confirm="confirmClear"
+          text="是否清空播放列表？"
+          confirmBtnText="清空" />
       </div>
     </transition>
   </teleport>
@@ -57,17 +65,20 @@ import { ref, computed, nextTick, watch } from 'vue'
 import { useStore } from 'vuex'
 import useMode from './use-mode'
 import useFavorite from './use-favorite'
+import Confirm from '@/components/base/confirm/confirm.vue'
 
 export default {
   name: 'playList',
   components: {
-    scroll
+    scroll,
+    Confirm
   },
   setup() {
     const visible = ref(false)
     const removing = ref(false)
     const scrollRef = ref(null)
     const listRef = ref(null)
+    const confirmRef = ref(null)
 
     const store = useStore()
     const playlist = computed(() => store.state.playList)
@@ -123,12 +134,21 @@ export default {
       if (removing.value) return
       removing.value = true
       store.dispatch('removeSong', song)
+      if (!playlist.value.length) {
+        hide()
+      }
       // 因为动画时间为300毫秒，所以这里处理300毫秒之后改为false
       setTimeout(() => {
         removing.value = false
       }, 300)
     }
-
+    function showConfirm() {
+      confirmRef.value.show()
+    }
+    function confirmClear() {
+      store.dispatch('clearSongList')
+      hide()
+    }
     return {
       visible,
       playlist,
@@ -141,6 +161,9 @@ export default {
       selectItem,
       removeSong,
       removing,
+      showConfirm,
+      confirmRef,
+      confirmClear,
       // use-mode
       modeIcon,
       changeMode,
