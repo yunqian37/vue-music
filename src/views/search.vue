@@ -19,7 +19,7 @@
       </div>
     </div>
     <div class="search-result" v-show="query">
-      <Suggest :query="query" />
+      <Suggest :query="query" @selectSong="selectSong" />
     </div>
   </div>
 </template>
@@ -28,6 +28,7 @@ import SearchInput from '@/components/search/search-input.vue'
 import { ref } from 'vue'
 import { getHotKeys } from '@/service/search'
 import Suggest from '@/components/search/suggest.vue'
+import { useStore } from 'vuex'
 export default {
   name: 'search',
   components: {
@@ -38,6 +39,8 @@ export default {
     const query = ref('')
     const hotKeys = ref([])
 
+    const store = useStore()
+
     getHotKeys().then((result) => {
       hotKeys.value = result.hotKeys
     })
@@ -46,10 +49,15 @@ export default {
       query.value = s
     }
 
+    function selectSong(song) {
+      store.dispatch('addSong', song)
+    }
+
     return {
       query,
       hotKeys,
-      addQuery
+      addQuery,
+      selectSong
     }
   }
 }

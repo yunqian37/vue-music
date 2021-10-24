@@ -76,3 +76,29 @@ export function clearSongList({ commit }) {
   commit('setCurrentIndex', 0)
   commit('setPlayingState', false)
 }
+
+// 添加歌曲
+export function addSong({ commit, state }, song) {
+  const sequenceList = state.sequenceList.slice()
+  const playList = state.playList.slice()
+  let currentIndex = state.currentIndex
+  const playIndex = findIndex(playList, song)
+
+  if (playIndex > -1) {
+    currentIndex = playIndex
+  } else {
+    playList.push(song)
+    currentIndex = playList.length - 1
+  }
+
+  const sequenceIndex = findIndex(sequenceList, song)
+  if (sequenceIndex === -1) {
+    sequenceList.push(song)
+  }
+
+  commit('setSequenceList', sequenceList)
+  commit('setPlayList', playList)
+  commit('setCurrentIndex', currentIndex)
+  commit('setPlayingState', true)
+  commit('setFullScreen', true)
+}

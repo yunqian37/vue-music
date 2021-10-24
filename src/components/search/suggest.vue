@@ -13,7 +13,11 @@
           <p class="text">{{singer.name}}</p>
         </div>
       </li>
-      <li class="suggest-item" v-for="song in songs" :key="song.id">
+      <li
+        class="suggest-item"
+        v-for="song in songs"
+        :key="song.id"
+        @click="selectSong(song)">
         <div class="icon">
           <i class="icon-music"></i>
         </div>
@@ -25,7 +29,7 @@
       </li>
       <div
         class="suggest-item"
-        v-loading:[loadingTxet]="pullUpLoading"></div>
+        v-loading:[loadingText]="pullUpLoading"></div>
     </ul>
   </div>
 </template>
@@ -43,7 +47,8 @@ export default {
       default: true
     }
   },
-  setup(props) {
+  emits: ['selectSong'],
+  setup(props, { emit }) {
     const singer = ref(null)
     const songs = ref([])
     const hasMore = ref(true)
@@ -108,6 +113,10 @@ export default {
       }
     }
 
+    function selectSong(song) {
+      emit('selectSong', song)
+    }
+
     return {
       singer,
       songs,
@@ -116,6 +125,7 @@ export default {
       loading,
       noResultText,
       pullUpLoading,
+      selectSong,
       // use-pull-up-load
       rootRef,
       isPullUpLoad
