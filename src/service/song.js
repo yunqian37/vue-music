@@ -15,7 +15,7 @@ export function processSongs(songs) {
       return song
     }).filter((song) => {
       // 过滤不包含vkey的数据，不包含vkey的不能播放
-      return song.url.indexOf('vkey') > 1
+      return song.url && song.url.indexOf('vkey') > 1
     })
   })
 }
