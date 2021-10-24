@@ -13,6 +13,29 @@
             v-model="query"
             placeholder="搜索歌曲" />
         </div>
+        <div v-show="!query">
+          <Switches
+            :items="['最近播放', '搜索历史']"
+            v-model="currentIndex" />
+          <div class="list-wrapper">
+            <scroll
+              v-if="currentIndex === 0"
+              class="list-scroll">
+              <div class="list-inner">
+                <SongList :songs="playHistory" />
+              </div>
+            </scroll>
+            <scroll
+              v-if="currentIndex === 1"
+              class="list-scroll">
+              <div class="list-inner">
+                <SearchList
+                  :searches="searchHistory"
+                  :showDelete="false" />
+              </div>
+            </scroll>
+          </div>
+        </div>
         <div class="search-result" v-show="query">
           <Suggest
             :query="query"
@@ -25,16 +48,31 @@
 <script>
 import Suggest from '@/components/search/suggest.vue'
 import SearchInput from '@/components/search/search-input.vue'
-import { ref } from 'vue'
+import Switches from '@/components/base/switches/switches.vue'
+import scroll from '@/components/base/scroll/scroll.vue'
+import SongList from '@/components/base/song-list/song-list.vue'
+import SearchList from '@/components/search/search-list.vue'
+import { ref, computed } from 'vue'
+import { useStore } from 'vuex'
 export default {
   name: 'add-song',
   components: {
     Suggest,
-    SearchInput
+    SearchInput,
+    Switches,
+    scroll,
+    SongList,
+    SearchList
   },
   setup() {
     const visible = ref(false)
     const query = ref('')
+    const currentIndex = ref(0)
+
+    const store = useStore()
+
+    const searchHistory = computed(() => store.state.searchHistory)
+    const playHistory = computed(() => store.state.playHistory)
 
     function show() {
       visible.value = true
@@ -47,7 +85,10 @@ export default {
       visible,
       query,
       show,
-      hide
+      hide,
+      currentIndex,
+      searchHistory,
+      playHistory
     }
   }
 }

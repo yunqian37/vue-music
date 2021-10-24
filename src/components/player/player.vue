@@ -130,6 +130,7 @@ import Scroll from '@/components/base/scroll/scroll.vue'
 import useMiddleInteractive from './use-middle-interactive'
 import MiniPlayer from './mini-player.vue'
 import useAnimation from './use-animation'
+import usePlayHistory from './use-play-history'
 export default {
   name: 'player',
   components: {
@@ -154,6 +155,7 @@ export default {
     const { currentLyric, currentLineNum, playLyric, lyricScrollRef, lyricListRef, stopLyric, pureMusicLyric, playingLyric } = useLyric({ songReady, currentTime })
     const { currentShow, middleLStyle, middleRStyle, onMiddleTouchStart, onMiddleTouchMove, onMiddleTouchEnd } = useMiddleInteractive()
     const { cdWrapperRef, enter, afterEnter, leave, afterLeave } = useAnimation()
+    const { savePlay } = usePlayHistory()
     // 获取store数据
     const store = useStore()
     // 播放器状态 全屏还是收缩
@@ -273,6 +275,7 @@ export default {
       if (songReady.value) return
       songReady.value = true
       playLyric()
+      savePlay(currentSong.value)
     }
     function error() {
       songReady.value = true
@@ -365,6 +368,7 @@ export default {
       afterEnter,
       leave,
       afterLeave
+      // use-play-history
     }
   }
 }
