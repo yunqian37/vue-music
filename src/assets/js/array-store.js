@@ -3,7 +3,10 @@ import storage from 'good-storage'
 // 判断歌曲是否已经存在
 function inertArray(arr, val, compare, maxLen) {
   const index = arr.findIndex(compare)
-  if (index > -1) return
+  if (index === 0) return
+  if (index > 0) {
+    arr.splice(index, 1)
+  }
   arr.unshift(val)
   // 设置最多保存多少歌曲的数量
   if (maxLen && arr.length > maxLen) {

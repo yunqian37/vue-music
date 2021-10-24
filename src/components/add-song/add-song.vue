@@ -20,18 +20,23 @@
           <div class="list-wrapper">
             <scroll
               v-if="currentIndex === 0"
+              ref="scrollRef"
               class="list-scroll">
               <div class="list-inner">
-                <SongList :songs="playHistory" />
+                <SongList
+                  :songs="playHistory"
+                  @select="selectSongBySongList" />
               </div>
             </scroll>
             <scroll
               v-if="currentIndex === 1"
+              ref="scrollRef"
               class="list-scroll">
               <div class="list-inner">
                 <SearchList
                   :searches="searchHistory"
-                  :showDelete="false" />
+                  :showDelete="false"
+                  @selectItem="addQuery" />
               </div>
             </scroll>
           </div>
@@ -39,7 +44,8 @@
         <div class="search-result" v-show="query">
           <Suggest
             :query="query"
-            :showSinger="false" />
+            :showSinger="false"
+            @selectSong="selectSongBuSuggest" />
         </div>
       </div>
     </transition>
@@ -52,8 +58,9 @@ import Switches from '@/components/base/switches/switches.vue'
 import scroll from '@/components/base/scroll/scroll.vue'
 import SongList from '@/components/base/song-list/song-list.vue'
 import SearchList from '@/components/search/search-list.vue'
-import { ref, computed } from 'vue'
+import { ref, computed, nextTick, watch } from 'vue'
 import { useStore } from 'vuex'
+import useSearchHistory from '@/components/search/use-search-history'
 export default {
   name: 'add-song',
   components: {
@@ -68,19 +75,43 @@ export default {
     const visible = ref(false)
     const query = ref('')
     const currentIndex = ref(0)
+    const scrollRef = ref(null)
 
     const store = useStore()
+    const { saveSearch } = useSearchHistory()
 
     const searchHistory = computed(() => store.state.searchHistory)
     const playHistory = computed(() => store.state.playHistory)
 
-    function show() {
+    watch(query, async () => {
+      await nextTick()
+      refreshScroll()
+    })
+
+    async function show() {
       visible.value = true
+      await nextTick()
+      refreshScroll()
     }
     function hide() {
       visible.value = false
     }
-
+    function refreshScroll() {
+      scrollRef.value.scroll.refresh()
+    }
+    function addQuery(s) {
+      query.value = s
+    }
+    function selectSongBySongList({ song }) {
+      addSong(song)
+    }
+    function selectSongBuSuggest(song) {
+      addSong(song)
+      saveSearch(query.value)
+    }
+    function addSong(song) {
+      store.dispatch('addSong', song)
+    }
     return {
       visible,
       query,
@@ -88,7 +119,11 @@ export default {
       hide,
       currentIndex,
       searchHistory,
-      playHistory
+      playHistory,
+      addQuery,
+      selectSongBySongList,
+      selectSongBuSuggest,
+      scrollRef
     }
   }
 }
