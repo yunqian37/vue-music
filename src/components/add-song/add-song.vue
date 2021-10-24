@@ -47,6 +47,12 @@
             :showSinger="false"
             @selectSong="selectSongBuSuggest" />
         </div>
+        <Message ref="messageRef">
+          <div class="message-title">
+            <i class="icon-ok"></i>
+            <span class="text">1首歌曲已经添加到播放列表</span>
+          </div>
+        </Message>
       </div>
     </transition>
   </teleport>
@@ -61,6 +67,7 @@ import SearchList from '@/components/search/search-list.vue'
 import { ref, computed, nextTick, watch } from 'vue'
 import { useStore } from 'vuex'
 import useSearchHistory from '@/components/search/use-search-history'
+import Message from '@/components/base/message/message.vue'
 export default {
   name: 'add-song',
   components: {
@@ -69,13 +76,15 @@ export default {
     Switches,
     scroll,
     SongList,
-    SearchList
+    SearchList,
+    Message
   },
   setup() {
     const visible = ref(false)
     const query = ref('')
     const currentIndex = ref(0)
     const scrollRef = ref(null)
+    const messageRef = ref(null)
 
     const store = useStore()
     const { saveSearch } = useSearchHistory()
@@ -111,6 +120,10 @@ export default {
     }
     function addSong(song) {
       store.dispatch('addSong', song)
+      showMessage()
+    }
+    function showMessage() {
+      messageRef.value.show()
     }
     return {
       visible,
@@ -123,7 +136,8 @@ export default {
       addQuery,
       selectSongBySongList,
       selectSongBuSuggest,
-      scrollRef
+      scrollRef,
+      messageRef
     }
   }
 }
@@ -180,7 +194,6 @@ export default {
     width: 100%;
   }
 }
-
 .message-title {
   text-align: center;
   padding: 18px 0;
