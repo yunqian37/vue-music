@@ -5,8 +5,27 @@ import store from './store'
 import lazyPlugin from 'vue3-lazy' // 懒加载
 import loadingDirective from '@/components/base/loading/directive' // 全局引入自定义指令
 import noResultDirective from '@/components/base/no-result/directive'
+import { load, saveAll } from '@/assets/js/array-store'
+import { FAVORITE_KEY, PLAY_KEY } from '@/assets/js/constant'
+import { processSongs } from '@/service/song'
 // 引入全局样式文件
 import '@/assets/scss/index.scss'
+
+// 处理本地存储url过期问题
+const favoriteSongs = load(FAVORITE_KEY)
+if (favoriteSongs.length > 0) {
+  processSongs(favoriteSongs).then((songs) => {
+    store.commit('setFavoriteList', songs)
+    saveAll(songs, FAVORITE_KEY)
+  })
+}
+const historySongs = load(PLAY_KEY)
+if (historySongs.length > 0) {
+  processSongs(historySongs).then((songs) => {
+    store.commit('setPlayHistory', songs)
+    saveAll(songs, PLAY_KEY)
+  })
+}
 
 createApp(App).use(store).use(router).use(lazyPlugin, {
   // 配置懒加载loading图片

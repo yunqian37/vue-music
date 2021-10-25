@@ -188,6 +188,7 @@ export default {
       songReady.value = false
       const audioEl = audioRef.value
       audioEl.src = newSong.url
+      console.log('191 191 191')
       audioEl.play()
       store.commit('setPlayingState', true)
     })
@@ -197,6 +198,7 @@ export default {
       const audioEl = audioRef.value
       // 根据播放状态处理歌词滚动效果和歌曲播放
       if (newPlaying) {
+        console.log('201 201 201')
         audioEl.play()
         stopLyric()
       } else {
@@ -268,6 +270,7 @@ export default {
       const audioEl = audioRef.value
       audioEl.currentTime = 0
       audioEl.play()
+      console.log('273 273 273')
       store.commit('setPlayingState', true)
     }
     function ready() {
