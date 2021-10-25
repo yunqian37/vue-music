@@ -7,7 +7,7 @@ import Slide from '@better-scroll/slide'
  * 它们依赖于内部的全局状态来定位当前活动的实例
  * 在没有当前活动实例的情况下调用它们将会出错
  */
-import { onMounted, onUnmounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref, onActivated, onDeactivated } from 'vue'
 
 // 通过静态方法使用
 BScroll.use(Slide)
@@ -38,6 +38,16 @@ export default function useSlider(wrapperRef) {
   onUnmounted(() => {
     slider.value.destroy()
   })
+
+  // keep-alive相关页面触发
+  onActivated(() => {
+    slider.value.enable()
+    slider.value.refresh()
+  })
+  onDeactivated(() => {
+    slider.value.disable()
+  })
+
   // 返回当前页坐标 && 轮播图信息
   return {
     slider,
