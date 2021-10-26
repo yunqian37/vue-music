@@ -1,6 +1,8 @@
 import axios from 'axios'
 
 const ERR_OK = 0
+
+// 上线需要修改
 const baseURL = '/'
 
 axios.defaults.baseURL = baseURL
